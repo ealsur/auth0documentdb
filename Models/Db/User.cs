@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace auth0documentdb.Models.Db
 {
-    public class User
+    public class User : Entity
     {
-        public User()
+        public User():base("user")
         {
         }
     }
