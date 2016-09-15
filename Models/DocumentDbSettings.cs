@@ -8,10 +8,10 @@ namespace auth0documentdb.Models
         public DocumentDbSettings(IConfiguration configuration)
         {
             try {
-                DatabaseName = configuration.GetSection("DocumentDB").GetSection("DatabaseName").Value;
-                CollectionName = configuration.GetSection("DocumentDB").GetSection("CollectionName").Value;
-                DatabaseUri = new Uri(configuration.GetSection("DocumentDB").GetSection("EndpointUri").Value);
-                DatabaseKey = configuration.GetSection("DocumentDB").GetSection("Key").Value;
+                DatabaseName = configuration.GetSection("DatabaseName").Value;
+                CollectionName = configuration.GetSection("CollectionName").Value;
+                DatabaseUri = new Uri(configuration.GetSection("EndpointUri").Value);
+                DatabaseKey = configuration.GetSection("Key").Value;
             }
             catch
             {
