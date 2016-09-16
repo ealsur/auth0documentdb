@@ -1,15 +1,26 @@
+using auth0documentdb.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace auth0documentdb.Controllers
 {
     public class AccountController : Controller
     {
-        public IActionResult Login(string returnUrl = "/")
+        private readonly IOptions<OpenIdConnectOptions> _options;
+        public AccountController(IOptions<OpenIdConnectOptions> openIdOptions)
         {
-            return new ChallengeResult("Auth0", new AuthenticationProperties() { RedirectUri = returnUrl });
+            _options = openIdOptions;
+        }
+        
+        public IActionResult Login(string returnUrl = null)
+        {
+            var lockContext = HttpContext.GenerateLockContext(_options.Value, returnUrl);
+            
+            return View(lockContext);
         }
 
         [Authorize]
