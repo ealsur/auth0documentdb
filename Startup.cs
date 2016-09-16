@@ -33,7 +33,7 @@ namespace auth0documentdb
         {
             services.AddAuthentication(
                 options => options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
-            
+            services.AddSingleton<IDocumentDbService>(x=>new DocumentDbService(Configuration));
             //Based on https://auth0.com/docs/quickstart/webapp/aspnet-core/02-login-embedded-lock
             services.Configure<OpenIdConnectOptions>(options =>
             {
