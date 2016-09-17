@@ -13,28 +13,18 @@ namespace auth0documentdb.Services
     {
         private readonly DocumentDbSettings _settings;
         private readonly Uri _collectionUri;
+        private DocumentClient _dbClient;
         public DocumentDbProvider(DocumentDbSettings settings)
         {
             _settings = settings;
             _collectionUri = GetCollectionLink();
-        }
-        #region Private
-        private DocumentClient _dbClient;
-        /// <summary>
-        /// Obtiene un cliente implementando Transient Fault Handling para backoff en caso de overuse
-        /// </summary>
-        /// <returns></returns>
-        private async Task<DocumentClient> GetClient()
-        {
-            if (_dbClient != null) return _dbClient;
             //See https://azure.microsoft.com/documentation/articles/documentdb-performance-tips/ for performance tips
             _dbClient = new DocumentClient(_settings.DatabaseUri, _settings.DatabaseKey, new ConnectionPolicy(){
                 MaxConnectionLimit = 100
             });
-            await _dbClient.OpenAsync();            
-            return _dbClient;
+            _dbClient.OpenAsync().Wait();
         }
-
+        #region Private
         /// <summary>
         /// Obtains the link of a collection
         /// </summary>
@@ -64,10 +54,9 @@ namespace auth0documentdb.Services
         /// <typeparam name="T">Type of Class to serialize</typeparam>
         /// <param name="feedOptions"></param>
         /// <returns></returns>
-        public async Task<IQueryable<T>> CreateQuery<T>(FeedOptions feedOptions)
+        public IQueryable<T> CreateQuery<T>(FeedOptions feedOptions)
         {
-            var client = await GetClient();
-            return client.CreateDocumentQuery<T>(_collectionUri, feedOptions);
+            return _dbClient.CreateDocumentQuery<T>(_collectionUri, feedOptions);
         }
 
         /// <summary>
@@ -77,10 +66,9 @@ namespace auth0documentdb.Services
         /// <param name="sqlExpression">SQL query</param>
         /// <param name="feedOptions"></param>
         /// <returns></returns>
-        public async Task<IQueryable<T>> CreateQuery<T>(string sqlExpression, FeedOptions feedOptions)
+        public IQueryable<T> CreateQuery<T>(string sqlExpression, FeedOptions feedOptions)
         {
-            var client = await GetClient(); 
-            return client.CreateDocumentQuery<T>(_collectionUri, sqlExpression, feedOptions);
+            return _dbClient.CreateDocumentQuery<T>(_collectionUri, sqlExpression, feedOptions);
         }
 
         /// <summary>
@@ -91,8 +79,7 @@ namespace auth0documentdb.Services
         /// <returns></returns>
         public async Task<string> AddItem<T>(T document)
         {
-            var client = await GetClient();
-            var result = await client.CreateDocumentAsync(_collectionUri, document);
+            var result = await _dbClient.CreateDocumentAsync(_collectionUri, document);
             return result.Resource.Id;
         }
 
@@ -105,8 +92,7 @@ namespace auth0documentdb.Services
         /// <returns></returns>
         public async Task<string> UpdateItem<T>(T document, string id)
         {
-            var client = await GetClient();
-            var result = await client.ReplaceDocumentAsync(GetDocumentLink(id), document);
+            var result = await _dbClient.ReplaceDocumentAsync(GetDocumentLink(id), document);
             return result.Resource.Id;
         }
 
@@ -117,8 +103,7 @@ namespace auth0documentdb.Services
         /// <returns></returns>
         public async Task<string> DeleteItem(string id)
         {
-            var client = await GetClient();
-            var result = await client.DeleteDocumentAsync(GetDocumentLink(id));
+            var result = await _dbClient.DeleteDocumentAsync(GetDocumentLink(id));
             return result.Resource.Id;
         }
                 

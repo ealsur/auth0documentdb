@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace auth0documentdb.Services
 {
@@ -8,6 +7,6 @@ namespace auth0documentdb.Services
     /// </summary>
     public interface IDocumentDbService
     {
-        Task<IQueryable<auth0documentdb.Models.Db.User>> UserQuery(int size = 10, string continuationToken = "");
+        IQueryable<auth0documentdb.Models.Db.User> UserQuery(int size = 10, string continuationToken = "");
     }
 }
