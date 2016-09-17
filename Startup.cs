@@ -34,40 +34,14 @@ namespace auth0documentdb
             services.AddAuthentication(
                 options => options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
             services.AddSingleton<IDocumentDbService>(x=>new DocumentDbService(Configuration));
-            //Based on https://auth0.com/docs/quickstart/webapp/aspnet-core/02-login-embedded-lock
-            services.Configure<OpenIdConnectOptions>(options =>
-            {
-                // Specify Authentication Scheme
-                options.AuthenticationScheme = "Auth0";
-
-                // Set the authority to your Auth0 domain
-                options.Authority = $"https://{Configuration["auth0:domain"]}";
-
-                // Configure the Auth0 Client ID and Client Secret
-                options.ClientId = Configuration["auth0:clientId"];
-                options.ClientSecret = Configuration["auth0:clientSecret"];
-
-                // Do not automatically authenticate and challenge
-                options.AutomaticAuthenticate = false;
-                options.AutomaticChallenge = false;
-
-                // Set response type to code
-                options.ResponseType = "code";
-
-                // Set the callback path, so Auth0 will call back to http://localhost:60856/signin-auth0 
-                // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard 
-                options.CallbackPath = new PathString("/signin-auth0");
-
-                // Configure the Claims Issuer to be Auth0
-                options.ClaimsIssuer = "Auth0";
-            });
+            services.Configure<Auth0Settings>(Configuration.GetSection("Auth0"));
+           
 
             services.AddMvc();
             services.AddOptions();
-            services.Configure<Auth0Settings>(Configuration.GetSection("Auth0"));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<OpenIdConnectOptions> oidcOptions)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,IOptions<Auth0Settings> auth0Settings)
         {
 
             app.UseStaticFiles();
@@ -77,7 +51,63 @@ namespace auth0documentdb
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true
             });
-            app.UseOpenIdConnectAuthentication(oidcOptions.Value);
+            //This should be BEFORE app.UseMvc to have priority on the pipeline
+            app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions("Auth0")
+            {
+                // Set the authority to your Auth0 domain
+                Authority = $"https://{auth0Settings.Value.Domain}",
+
+                // Configure the Auth0 Client ID and Client Secret
+                ClientId = auth0Settings.Value.ClientId,
+                ClientSecret = auth0Settings.Value.ClientSecret,
+
+                // Do not automatically authenticate and challenge
+                AutomaticAuthenticate = false,
+                AutomaticChallenge = false,
+
+                // Set response type to code
+                ResponseType = "code",
+
+                // Set the callback path, so Auth0 will call back to http://localhost:5001/signin-auth0
+                // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard 
+                CallbackPath = new PathString("/signin-auth0"),
+
+                // Configure the Claims Issuer to be Auth0
+                ClaimsIssuer = "Auth0",
+
+                // Saves tokens to the AuthenticationProperties
+                SaveTokens = true,
+
+                Events = new OpenIdConnectEvents()
+                {
+                    OnTicketReceived = context =>
+                    {
+                        // Get the ClaimsIdentity
+                        var identity = context.Principal.Identity as ClaimsIdentity;
+                        if (identity != null)
+                        {
+                            // Check if token names are stored in Properties
+                            if (context.Properties.Items.ContainsKey(".TokenNames"))
+                            {
+                                // Token names a semicolon separated
+                                string[] tokenNames = context.Properties.Items[".TokenNames"].Split(';');
+
+                                // Add each token value as Claim
+                                foreach (var tokenName in tokenNames)
+                                {
+                                    // Tokens are stored in a Dictionary with the Key ".Token.<token name>"
+                                    string tokenValue = context.Properties.Items[$".Token.{tokenName}"];
+
+                                    identity.AddClaim(new Claim(tokenName, tokenValue));
+                                }
+                            }
+                        }
+
+                        return Task.FromResult(0);
+                    }
+                }
+            });
+
 
             
             app.UseMvcWithDefaultRoute();

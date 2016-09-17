@@ -9,6 +9,7 @@ namespace auth0documentdb.Controllers
     {
         public IActionResult Index()
         {
+            
             return View();
         }
     }
