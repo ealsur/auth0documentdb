@@ -101,10 +101,9 @@ namespace auth0documentdb.Services
         /// </summary>
         /// <param name="id">Id of the document to delete</param>
         /// <returns></returns>
-        public async Task<string> DeleteItem(string id)
+        public async Task DeleteItem(string id)
         {
-            var result = await _dbClient.DeleteDocumentAsync(GetDocumentLink(id));
-            return result.Resource.Id;
+            await _dbClient.DeleteDocumentAsync(GetDocumentLink(id));
         }
                 
         #endregion
