@@ -1,0 +1,45 @@
+<div class="container" ng-controller="ProfileController as profile">
+    <div class="page-title"><h1>Profile sample</h1></div>
+    <div class="row">
+        <h2>Notification preferences <img src="/images/loading.gif" ng-show="profile.loadingNotifications"></h2>
+        <div ng-disabled="profile.loadingNotifications">
+        <p><toggle ng-change="profile.notificationschanged()" ng-model="profile.notificationpreferences.email" size="btn-sm" onstyle="btn-success" offstyle="btn-danger" on="Email notifications" off="Email notifications" ></toggle></p>
+        <p><toggle ng-change="profile.notificationschanged()" ng-model="profile.notificationpreferences.push" size="btn-sm" onstyle="btn-success" offstyle="btn-danger" on="Push notifications" off="Push notifications"></toggle></p>
+        <p><toggle ng-change="profile.notificationschanged()" ng-model="profile.notificationpreferences.sms" size="btn-sm" onstyle="btn-success" offstyle="btn-danger" on="SMS notifications" off="SMS notifications"></toggle></p>
+        </div>
+    </div>
+    <div class="row">
+        <h2>Contact addresses <img src="/images/loading.gif" ng-show="profile.loadingAddresses"></h2>
+        <table class="table table-tripped">
+            <tr>
+                <th>Address</th>
+                <th>Is Primary?</th>
+                <th></th>
+            </tr>
+            <tr ng-repeat="address in profile.addresses">
+                <td>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">@@</span>
+                        <input type="text" class="form-control" ng-model="address.address" ng-change="profile.addressChanged(address)" ng-model-options="{ updateOn: 'blur' }" placeholder="john@doe.com" aria-describedby="basic-addon1">
+                    </div>
+                </td>
+                <td>
+                    <toggle ng-change="profile.addressChanged(address)" ng-model="address.primary" size="btn-sm" onstyle="btn-success" on="Yes" off="No"></toggle>
+                </td>
+                <td>
+                   <button class="btn btn-danger" type="button" ng-click="profile.removeAddress(address, $index)"><span class="glyphicon glyphicon-remove-sign"></span> Remove address</button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3"><button type="button" class="btn btn-primary" ng-click="profile.addAddress()" ng-disabled="profile.loadingAddresses"><span class="glyphicon glyphicon-plus-sign"></span> Add contact address</button></td>
+            </tr>
+        </table>
+    </div>
+</div>
+@section scripts{
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.1.3/ui-bootstrap-tpls.min.js"></script>
+    <script src="/lib/angular-bootstrap-toggle.min.js"></script>
+    <script src="/lib/profile.js"></script>
+}
+    
