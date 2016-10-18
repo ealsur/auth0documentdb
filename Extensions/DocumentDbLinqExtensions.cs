@@ -16,7 +16,15 @@ namespace auth0documentdb.Extensions
         public static T TakeOne<T>(this IQueryable<T> source)
         {
             var documentQuery = source.AsDocumentQuery();            
-            return documentQuery.HasMoreResults && documentQuery.ExecuteNextAsync().Result.Any() ? documentQuery.ExecuteNextAsync<T>().Result.Single<T>() : default(T);
+            if (documentQuery.HasMoreResults)
+			{
+				var queryResult = documentQuery.ExecuteNextAsync<T>().Result;
+				if (queryResult.Any())
+				{
+					return queryResult.Single<T>();
+				}
+			}
+			return default(T);
         }
 
         /// <summary>
