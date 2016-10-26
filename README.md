@@ -2,6 +2,8 @@
 
 This repository acts as sample in a scenario where you want to use Azure DocumentDB as your database and integrate Auth0's authentication service by a custom database scenario.
 
+You can read the complete guide and use case in [Auth0's blog](https://auth0.com/blog/documentdb-with-aspnetcore/).
+
 It includes an ASP.NET Core Web application with a [appsettings.json](https://github.com/ealsur/auth0documentdb/blob/master/appsettings.json) file you need to configure with your account settings:
 ```javascript
     {
