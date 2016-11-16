@@ -20,5 +20,4 @@ It includes an ASP.NET Core Web application with a [appsettings.json](https://gi
         "CollectionName":"{YOUR_EXISTENT_DOCUMENTDB_COLLECTION_NAME}"
       }
     }
-```
-> Due to [Azure DocumentDB's SDK](https://www.nuget.org/packages/Microsoft.Azure.DocumentDB) restrictions, even though this is an ASP.NET Core application, it runs on Full Framework mode.
+
