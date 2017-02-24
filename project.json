@@ -15,7 +15,7 @@
     "Microsoft.AspNetCore.Mvc": "1.0.1",
     "Microsoft.AspNetCore.Authentication.OpenIdConnect": "1.0.0",
     "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0",
-    "Microsoft.Azure.DocumentDB.Core":"0.1.0-preview"
+    "Microsoft.Azure.DocumentDB.Core":"1.1.0"
   },
 
   "tools": {
