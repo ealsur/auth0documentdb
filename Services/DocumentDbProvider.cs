@@ -20,7 +20,9 @@ namespace auth0documentdb.Services
             _collectionUri = GetCollectionLink();
             //See https://azure.microsoft.com/documentation/articles/documentdb-performance-tips/ for performance tips
             _dbClient = new DocumentClient(_settings.DatabaseUri, _settings.DatabaseKey, new ConnectionPolicy(){
-                MaxConnectionLimit = 100
+                MaxConnectionLimit = 100,
+                ConnectionMode = ConnectionMode.Direct,
+                ConnectionProtocol = Protocol.Tcp
             });
             _dbClient.OpenAsync().Wait();
         }
